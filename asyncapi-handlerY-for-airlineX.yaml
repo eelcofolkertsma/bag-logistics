@@ -68,7 +68,7 @@ components:
         bagTag:
           type: string
           description: license plate
-          example: '074123456'
+          example: '0074123456'
         flight:
           type: string
           description: flight on which bag is planned
