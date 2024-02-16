@@ -76,3 +76,5 @@ components:
             - produced identity
             - acquired
             - loaded
+            - delivered
+          example: produced identity
