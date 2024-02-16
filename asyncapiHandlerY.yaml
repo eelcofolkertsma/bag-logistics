@@ -1,1 +1,78 @@
-hi
+asyncapi: 3.0.0
+info:
+  title: Baggage Logistics as a Service
+  version: 1.0.0
+  description: >-
+    This service is in charge of delivering bags logistics. It documents the
+    perspective of a handler at an airport
+servers:
+  airlineX:
+    description: >-
+      airlineX is where airline X publishes bag information and receives updates
+      When handler facilitates multiple airlines, this element repeats for every
+      principal
+    host: fly.example.com
+    protocol: mqtts
+channels:
+  command:
+    description: >-
+      the command channel sits on principal(customer) server and is unique for
+      handler at an airport
+    servers:
+      - $ref: '#/servers/airlineX'
+    address: bagforhandlerY
+    messages:
+      bagCommand:
+        $ref: '#/components/messages/BIX'
+  deliver:
+    description: >-
+      the deliver channel sits on principal(customer) server and is unique for
+      handler at an airport
+    servers:
+      - $ref: '#/servers/airlineX'
+    address: bagupdatefromhandlerY
+    messages:
+      bagEvent:
+        $ref: '#/components/messages/BIX'
+operations:
+  doThis:
+    action: receive
+    channel:
+      $ref: '#/channels/command'
+    messages:
+      - $ref: '#/channels/command/messages/bagCommand'
+  doneThat:
+    action: send
+    channel:
+      $ref: '#/channels/deliver'
+    messages:
+      - $ref: '#/channels/deliver/messages/bagEvent'
+components:
+  messages:
+    BIX:
+      name: Baggage Information eXchange
+      title: Instructions for bag in custody, logistics events
+      summary: Instruct how to handle the bag and report its progress
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/BIXPayload'
+  schemas:
+    BIXPayload:
+      description: OpenAPI Specification explains how xml schema can be expressed in yaml.
+      type: object
+      properties:
+        bagTag:
+          type: string
+          description: license plate
+          example: '0074123456'
+        flight:
+          type: string
+          description: flight on which bag is planned
+          example: DL006/15JAN ATL FRA
+        bagActivity:
+          type: string
+          description: indicates instructions or event that occurred for bag
+          enumeration:
+            - produced identity
+            - acquired
+            - loaded
